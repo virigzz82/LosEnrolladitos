@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Enrolladitos - Pedido en Línea</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .product, .extras, .total, .payment-method {
+            margin-bottom: 20px;
+        }
+        .product label, .extras label, .payment-method label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        select, input[type="number"], button {
+            padding: 10px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #34495e;
+        }
+        .total {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .payment-method {
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Los Enrolladitos - Pedido en Línea</h1>
+    </header>
+
+    <div class="container">
+        <div class="product">
+            <label for="cantidad">Cantidad de burritos:</label>
+            <input type="number" id="cantidad" value="1" min="1">
+        </div>
+
+        <div class="product">
+            <label for="tipo_burrito">Tipo de burrito:</label>
+            <select id="tipo_burrito">
+                <option value="harina">Burrito de harina</option>
+                <option value="maiz">Burrito de maíz</option>
+            </select>
+        </div>
+
+        <div class="product">
+            <label for="guiso">Selecciona los guisos (elige hasta 3):</label>
+            <select id="guiso" multiple>
+                <option value="picadillo">Picadillo</option>
+                <option value="chicharron">Chicharrón</option>
+                <option value="frijol">Frijoles</option>
+                <option value="papa_chorizo">Papa con Chorizo</option>
+            </select>
+        </div>
+
+        <div class="extras">
+            <label for="guarnicion">Elige guarniciones adicionales (opcional):</label>
+            <input type="checkbox" id="guarnicion_frijoles"> Frijoles Refritos ($30)
+            <input type="checkbox" id="guarnicion_rajas"> Rajas con crema y elote ($30)
+        </div>
+
+        <div class="extras">
+            <label for="hielera">¿Deseas agregar una hielera térmica?</label>
+            <input type="checkbox" id="hielera"> Hielera térmica ($100)
+        </div>
+
+        <div class="extras">
+            <label for="bufetera">¿Necesitas bufetera?</label>
+            <input type="checkbox" id="bufetera"> Bufetera ($200 por cada 100 burritos)
+        </div>
+
+        <div class="product">
+            <label for="cantidad_burritos_cientos">Cantidad de burritos por cientos (opcional):</label>
+            <input type="number" id="cantidad_burritos_cientos" value="0" min="0">
+        </div>
+
+        <div class="total">
+            <p>Total: $<span id="total">0</span></p>
+        </div>
+
+        <div class="payment-method">
+            <label for="pago_transferencia">
+                <input type="radio" id="pago_transferencia" name="pago" value="transferencia"> Pago por Transferencia Electrónica
+            </label>
+            <label for="pago_tarjeta">
+                <input type="radio" id="pago_tarjeta" name="pago" value="tarjeta"> Pago con Tarjeta de Crédito
+            </label>
+        </div>
+
+        <button class="button" id="calcular_total">Calcular Total</button>
+        <button class="button" id="realizar_pago">Realizar Pago</button>
+    </div>
+
+    <script>
+        const calcularTotal = () => {
+            const precioBurrito = 14;
+            const precioGuarnicion = 30;
+            const precioHielera = 100;
+            const precioBufetera = 200;
+            const precioCientos = 1400;
+
+            let cantidadBurritos = parseInt(document.getElementById('cantidad').value);
+            let guisosSeleccionados = document.getElementById('guiso').selectedOptions;
+            let guarnicionFrijoles = document.getElementById('guarnicion_frijoles').checked;
+            let guarnicionRajas = document.getElementById('guarnicion_rajas').checked;
+            let hielera = document.getElementById('hielera').checked;
+            let bufetera = document.getElementById('bufetera').checked;
+            let cantidadBurritosCientos = parseInt(document.getElementById('cantidad_burritos_cientos').value);
+
+            let total = cantidadBurritos * precioBurrito;
+
+            // Añadir costo de guarniciones
+            if (guarnicionFrijoles) total += precioGuarnicion;
+            if (guarnicionRajas) total += precioGuarnicion;
+
+            // Añadir costo de hielera
+            if (hielera) total += precioHielera;
+
+            // Añadir costo de bufetera
+            if (bufetera && cantidadBurritos >= 100) {
+                let cantidadBufeteras = Math.ceil(cantidadBurritos / 100);
+                total += cantidadBufeteras * precioBufetera;
+            }
+
+            // Añadir precio por cientos de burritos
+            if (cantidadBurritosCientos > 0) {
+                total += cantidadBurritosCientos * precioCientos;
+            }
+
+            document.getElementById('total').textContent = total;
+        };
+
+        const realizarPago = () => {
+            let metodoPago = document.querySelector('input[name="pago"]:checked');
+            if (!metodoPago) {
+                alert('Por favor, elige un método de pago.');
+                return;
+            }
+            alert(`El pago se realizará por ${metodoPago.value}`);
+        };
+
+        document.getElementById('calcular_total').addEventListener('click', calcularTotal);
+        document.getElementById('realizar_pago').addEventListener('click', realizarPago);
+    </script>
+</body>
+</html>
